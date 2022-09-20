@@ -8,9 +8,11 @@ from scipy import stats
 import torch.nn.utils.rnn as rnn_utils
 from torch.nn.utils.rnn import pad_sequence
 import re
+from transformers import BartTokenizer
 from tqdm import tqdm
 from nltk.corpus import stopwords
 
+tokenizer = BartTokenizer.from_pretrained('facebook/bart-base',do_lower_case=True,TOKENIZERS_PARALLELISM=True)
 class PatientDataset(object):
     def __init__(self, data_dir,flag="train",):
         self.data_dir = data_dir
@@ -18,8 +20,8 @@ class PatientDataset(object):
         self.lab_list = sorted(os.listdir(self.data_dir))
         self.text_dir = os.path.join(data_dir,'text',flag)
         self.text_list = sorted(os.listdir( self.text_dir))
-        self.lab_dir = os.path.join('xx',flag)
-        self.event_dir = os.path.join('xx',flag)
+        self.lab_dir = os.path.join('/home/comp/cssniu/mllt_backup/mllt/dataset/timeseries/',flag)
+        self.event_dir = os.path.join('/home/comp/cssniu/mllt_backup/mllt/dataset/event/',flag)
         self.all_feature_list = ['Capillary refill rate', 'Diastolic blood pressure',
        'Fraction inspired oxygen', 'Glascow coma scale eye opening',
        'Glascow coma scale motor response', 'Glascow coma scale total',
@@ -93,6 +95,18 @@ class PatientDataset(object):
             y = text_file[self.label_list].values
             label_list.append(y)
 
+            # label = text_file["LABELS"].values[0]
+            # try:
+            #     label = label.split(";")
+            # except:
+            #     label = [label]
+            #     pass
+            # target_label = list(set(label).intersection(set(self.icd_list)))
+            # label_array = np.array([0]*len(self.icd_list))
+            # taget_label_index = [self.icd_list.index(i) for i in target_label]
+            # label_array[taget_label_index] = 1
+            # label_array = list(label_array)
+            # label_list.append(label_array)
             event_file = pd.read_csv(os.path.join(event_patient_id_dir,v))[["procedure_event","input_event_mv","input_event_cv"]].values
             event_codes = []
 
@@ -129,16 +143,4 @@ def collate_fn(data):
     event_codes =  data[0][2]
     return text_list,label_list,event_codes
 
-if __name__ == '__main__':
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    device = torch.device(device)
-    dataset = PatientDataset('xx',flag="train")
-    batch_size = 1
-    # model = cw_lstm_model(output=True)
-    trainloader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, collate_fn=collate_fn)
-    label_list = []
-    for i,(text_list,label,event_codes_list) in enumerate(tqdm(trainloader)):
-        # break
-        for d in range(len(text_list)):
-            text = text_list[d]
 

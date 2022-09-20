@@ -8,21 +8,19 @@ from scipy import stats
 import torch.nn.utils.rnn as rnn_utils
 from torch.nn.utils.rnn import pad_sequence
 import re
-from transformers import BartTokenizer
 from tqdm import tqdm
 from nltk.corpus import stopwords
 import random
 from datetime import datetime
 SEED = 2019
 torch.manual_seed(SEED)
-tokenizer = BartTokenizer.from_pretrained('facebook/bart-base',do_lower_case=True,TOKENIZERS_PARALLELISM=True)
 class PatientDataset(object):
     def __init__(self, data_dir,class_3,visit,flag="train",):
         self.data_dir = data_dir
         self.flag = flag
-        self.text_dir = 'xx'
+        self.text_dir = '/home/comp/cssniu/mllt/dataset/brief_course/'
         # self.event_dir = '/home/comp/cssniu/mllt/dataset/event_new/'
-        self.stopword = list(pd.read_csv('xx').values.squeeze())
+        self.stopword = list(pd.read_csv('/home/comp/cssniu/RAIM/stopwods.csv').values.squeeze())
         self.visit = visit
         if visit == 'twice':
             self.patient_list = os.listdir(os.path.join(f'{data_dir}',flag+"1"))
@@ -141,10 +139,3 @@ def collate_fn(data):
     label_list = data[0][2]
     return cheif_complaint_list,text_list,label_list
 
-if __name__ == '__main__':
-
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    device = torch.device(device)
-    dataset = PatientDataset('xx',class_3 = True,visit = "twice",flag="train")
-    print(len(os.listdir('xx')))
-    print(dataset.__len__())

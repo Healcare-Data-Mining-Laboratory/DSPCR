@@ -15,15 +15,16 @@ import random
 from datetime import datetime
 SEED = 2019
 torch.manual_seed(SEED)
+tokenizer = BartTokenizer.from_pretrained('facebook/bart-base',do_lower_case=True,TOKENIZERS_PARALLELISM=True)
 class PatientDataset(object):
     def __init__(self, data_dir,class_3,visit,flag="train",):
         self.visit = visit
         self.data_dir = data_dir
         self.flag = flag
-        self.text_dir = 'xx'
-        self.event_dir = 'xx'
-        self.datedf = pd.read_csv('xx')
-        self.stopword = list(pd.read_csv('xx').values.squeeze())
+        self.text_dir = '/home/comp/cssniu/mllt/dataset/brief_course/'
+        self.event_dir = '/home/comp/cssniu/mllt/dataset/event_new/'
+        self.datedf = pd.read_csv('/home/comp/cssniu/mllt/dataset/new_packed_data/date_file.csv')
+        self.stopword = list(pd.read_csv('/home/comp/cssniu/RAIM/stopwods.csv').values.squeeze())
         self.class_3 = class_3
 
         self.sbj_dir = os.path.join(f'{data_dir}',flag)
@@ -156,11 +157,3 @@ def collate_fn(data):
 
     return cheif_complaint_list,text_list,label_list
 
-if __name__ == '__main__':
-
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
-    device = torch.device(device)
-    visit = 'twice'
-    dataset = PatientDataset(f'xx',class_3 = True,visit = 'twice',flag="train")
-    batch_size = 30
-    print(len(os.listdir("xx")))
